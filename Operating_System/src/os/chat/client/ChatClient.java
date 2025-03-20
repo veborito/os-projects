@@ -34,7 +34,7 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 	private String userName;
 	
 	// Tested remote host ip from my private network. Change this to null to make it run on localhost.
-	private String hostIP = "192.168.1.206";
+	private String hostIP = "192.168.1.206"; // ip from remote host or null
   /**
    * The graphical user interface, accessed through its interface. In return,
    * the GUI will use the CommandsFromWindow interface to call methods to the
