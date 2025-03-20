@@ -1,6 +1,5 @@
 package os.chat.server;
 
-import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -50,7 +49,7 @@ public class ChatServerManager implements ChatServerManagerInterface {
 		// exporting the ChatServerManager object to the RMI registry
 		try {
 			ChatServerManagerInterface stub = (ChatServerManagerInterface)UnicastRemoteObject.exportObject(this, 0);
-			registry = LocateRegistry.getRegistry();
+			registry = LocateRegistry.getRegistry(1099);
 			registry.rebind("ChatServerManager", stub);
 		} catch (RemoteException e) {
 			System.err.println("can not export the object");

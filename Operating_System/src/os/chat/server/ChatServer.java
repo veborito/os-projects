@@ -23,6 +23,8 @@ public class ChatServer implements ChatServerInterface {
 	private String roomName;
 	private Vector<CommandsFromServer> registeredClients;
 	
+	// single client skeleton
+	private CommandsFromServer client;
 	
 	// declare the registry
 	private Registry registry;
@@ -38,7 +40,7 @@ public class ChatServer implements ChatServerInterface {
 		try {
 			// create the stub
 			ChatServerInterface stub = (ChatServerInterface)UnicastRemoteObject.exportObject(this, 0);
-			registry = LocateRegistry.getRegistry();
+			registry = LocateRegistry.getRegistry(1099);
 			registry.rebind("room_" + roomName, stub);
 		} catch (RemoteException e) {
 			System.err.println("can not export the object");
@@ -55,14 +57,17 @@ public class ChatServer implements ChatServerInterface {
 	 */	
 	public void publish(String message, String publisher) {
 		// iterating through all the registered clients to retrieve their messages
-		for (CommandsFromServer client: registeredClients) {
+		for (int i = 0; i < registeredClients.size(); i++) {
+			client = registeredClients.get(i);
 			try {
 				client.receiveMsg(roomName, publisher + ": " + message);
 				System.out.println("  [server] publishing '" + message + "' from '" + publisher + "'");
 			} catch (RemoteException e) {
 				System.err.println("Can not receive message from client");
-				registeredClients.remove(client);
+				unregister(client);
+				i--; // stay inbound because of the change of size
 				System.out.println("user unregistered from room " + roomName);
+				e.printStackTrace();
 			}
 		}
 	}
