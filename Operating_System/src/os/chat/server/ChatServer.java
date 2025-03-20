@@ -38,7 +38,7 @@ public class ChatServer implements ChatServerInterface {
 		registeredClients = new Vector<CommandsFromServer>();
 		
 		try {
-			// create the stub
+			// create the stub for the chatServer
 			ChatServerInterface stub = (ChatServerInterface)UnicastRemoteObject.exportObject(this, 0);
 			registry = LocateRegistry.getRegistry(1099);
 			registry.rebind("room_" + roomName, stub);
@@ -57,6 +57,7 @@ public class ChatServer implements ChatServerInterface {
 	 */	
 	public void publish(String message, String publisher) {
 		// iterating through all the registered clients to retrieve their messages
+		// using classic for loop to avoid ConcurrentModificationException
 		for (int i = 0; i < registeredClients.size(); i++) {
 			client = registeredClients.get(i);
 			try {

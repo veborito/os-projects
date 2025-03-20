@@ -23,7 +23,7 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 	private CommandsFromServer skeleton;
 	
 	// reference to the remote instance of ChatServerManager and declaration of the registry
-	private ChatServerManagerInterface chatServerManager;
+	private ChatServerManagerInterface chatServerManager = null;
 	private Registry registry;
 	
 	// hash map with the rooms and the stub for each room
@@ -33,8 +33,8 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 	 */
 	private String userName;
 	
-	// host ip address
-	private String hostIP;
+	// Tested remote host ip from my private network. Change this to null to make it run on localhost.
+	private String hostIP = "192.168.1.206";
   /**
    * The graphical user interface, accessed through its interface. In return,
    * the GUI will use the CommandsFromWindow interface to call methods to the
@@ -55,13 +55,15 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 		this.userName = userName;
 		myRooms = new HashMap<String, ChatServerInterface> ();
 		
-		// get ip
-		try {
-			this.hostIP = Inet4Address.getLocalHost().getHostAddress();
-			System.out.println("Host IP: " + hostIP);
-		} catch (UnknownHostException e) {
-			System.err.println("Could not get host IP Address");
-			e.printStackTrace();
+		if (hostIP == null) {
+			// get ip
+			try {
+				hostIP = Inet4Address.getLocalHost().getHostAddress();
+				System.out.println("Host IP: " + hostIP);
+			} catch (UnknownHostException e) {
+				System.err.println("Could not get host IP Address");
+				e.printStackTrace();
+			}
 		}
 		try {
 			// retrieve the registry
@@ -75,7 +77,6 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 			System.err.println("can not lookup for ChatServerManager");
 			e.printStackTrace();
 		}
-
 		try {
 			skeleton = (CommandsFromServer)UnicastRemoteObject.exportObject(this, 0);
 		} catch (RemoteException e) {
@@ -132,7 +133,10 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 	 * <code>false</code> otherwise
 	 */
 	public boolean joinChatRoom(String roomName) {
-		
+		/* joining a new room 
+		 * first looking up for the room stub and then
+		 * calling the register method from ChatServer to register the client
+		 */
 		try {
 			myRooms.put(roomName, (ChatServerInterface)registry.lookup("room_" + roomName));
 			myRooms.get(roomName).register(skeleton);
@@ -156,7 +160,7 @@ public class ChatClient implements CommandsFromWindow,CommandsFromServer {
 	 * <code>false</code> otherwise
 	 */	
 	public boolean leaveChatRoom(String roomName) {
-		
+		// retrieving the chatServer stub to use the unregister method to unregister the client from the selected room.
 		try {
 			myRooms.get(roomName).unregister(skeleton);
 		} catch (RemoteException e) {
