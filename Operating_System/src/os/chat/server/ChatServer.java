@@ -61,11 +61,12 @@ public class ChatServer implements ChatServerInterface {
 		for (int i = 0; i < registeredClients.size(); i++) {
 			client = registeredClients.get(i);
 			try {
+				// calling receive msg function from client to show the text on the screen 
 				client.receiveMsg(roomName, publisher + ": " + message);
 				System.out.println("  [server] publishing '" + message + "' from '" + publisher + "'");
 			} catch (RemoteException e) {
 				System.err.println("Can not receive message from client");
-				unregister(client);
+				unregister(client); // unregistering the client from the user list so there's only one error message
 				i--; // stay inbound because of the change of size
 				System.out.println("user unregistered from room " + roomName);
 				e.printStackTrace();
