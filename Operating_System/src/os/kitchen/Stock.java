@@ -25,29 +25,63 @@ class Stock {
      * Name of the stock
      */
     private String name;
-
+    
+    /**
+     * Max amount of food
+     */
+    private int maxFood;
+    
     /**
      * Creates a new Stock object
      * @param name its name
      * @param nbFood initial number of food
      */
-    public Stock(String name, int nbFood) {
+    public Stock(String name, int nbFood, int maxFood) {
         this.nbFood = nbFood;
         this.name = name;		
+        this.maxFood = maxFood;
     }
 
     /**
      * Adds food
      */
-    public void put() {
+    // Q-2 adding synchronized keyword to solve the concurrency problem
+    public synchronized void put() {
+    	// Q-7 waiting until the food is out of the stock
+    	while (nbFood == maxFood) {
+    		try {
+				wait();
+			} catch (InterruptedException e) {}
+    	}
         nbFood++;
+        // Q-5 using notify to wake up the waiting thread
+//        notify();
+        //Q-7 using notifyAll to remove deadlock 
+        notifyAll();
+        // Q-3 get the stock evolution of the final stock
+        System.out.println(Thread.currentThread().getName() 
+        		+ ": stock \"" + name + "\" contains " + nbFood + " food.");
     }
-
+    
     /**
      * Removes (takes) food
      */
-    public void get() {
+    // Q-2 adding synchronized keyword to solve the concurrency problem
+    public synchronized void get() {
+    	// Q-5 waiting until some food is available
+    	while (nbFood == 0) {
+			try {
+				wait();
+			} catch (InterruptedException e) {}
+    	}
         nbFood--;
+        // Q-7 notifying all the waiting thread to avoid deadlock.
+        // PS: it works also if one of the notifyAll() is replaced
+        // with notify() but it's a little slower :D
+        notifyAll();
+        // Q-3 get the stock evolution of the initial stock
+        System.out.println(Thread.currentThread().getName()
+        		+ ": stock \"" + name + "\" contains " + nbFood + " food.");
     }
 
     /**
@@ -62,7 +96,7 @@ class Stock {
      * @param args not used
      */
     static public void main(String[] args) {
-        Stock stock = new Stock("test", 5);
+        Stock stock = new Stock("test", 5, 1);
         stock.put();
         stock.display();
         stock.get();

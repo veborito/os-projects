@@ -52,7 +52,8 @@ class Stove extends Thread {
      */
     public void prepare() {
         A.get();
-        try { Thread.sleep(64); } catch(InterruptedException e) {}
+        //Q-2, Q-7 commenting out the sleep to avoid waiting to long
+//        try { Thread.sleep(64); } catch(InterruptedException e) {}
         B.put();
     }
 
@@ -74,8 +75,8 @@ class Stove extends Thread {
      * @param args not used
      */
     static public void main(String[] args) {
-        Stock stockInput = new Stock("input", 4);
-        Stock stockOutput = new Stock("output", 1);
+        Stock stockInput = new Stock("input", 4, 1);
+        Stock stockOutput = new Stock("output", 1, 1);
         new Stove(stockInput, stockOutput, 2).run();
         stockInput.display();
         stockOutput.display();
